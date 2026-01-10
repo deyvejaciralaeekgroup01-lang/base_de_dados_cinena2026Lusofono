@@ -40,9 +40,7 @@ CREATE TABLE movies (
     movieName NVARCHAR(255) NOT NULL,
     movieDuration DECIMAL(5,1) NULL,
     movieBudget DECIMAL(15,2) NULL,
-    movieReleaseDate VARCHAR(12) Default NULL
-    --registrationDate DATETIME DEFAULT '2026-01-01' : will be added on next line 
-    --ageRatingId INT NULL : will be added on next line 
+    movieReleaseDate VARCHAR(12) Default NULL 
 );
 
 CREATE TABLE directors (
@@ -57,11 +55,9 @@ CREATE TABLE actors (
 );
 
 CREATE TABLE movie_votes (
-    --ratingId INT IDENTITY(1,1) PRIMARY KEY,
     movieId INT NOT NULL,
     movieRating DECIMAL(3,1) NOT NULL CHECK (movieRating >= 0 AND movieRating <= 10),
     movieRatingCount INT NOT NULL DEFAULT 0,
-    --source NVARCHAR(100) DEFAULT 'IMDb', this column will update in another file
     FOREIGN KEY (movieId) REFERENCES Movies(movieId)
 );
 
@@ -146,9 +142,8 @@ CREATE TABLE interaction (
     FOREIGN KEY (movieId) REFERENCES Movies(movieId)
 );
 
-
 -- ============================================
--- CONSTRAINTS E iNDICES: Note: 
+-- CONSTRAINTS E INDICES: Note: 
 -- ============================================
 ALTER TABLE movies ADD CONSTRAINT CHK_MoviesBudget CHECK (movieBudget >= 0 OR movieBudget IS NULL);
 ALTER TABLE movies ADD CONSTRAINT CHK_MoviesDuration CHECK (movieDuration > 0 OR movieDuration IS NULL); 
@@ -157,8 +152,7 @@ ALTER TABLE movies ALTER COLUMN movieBudget DECIMAL(15,2) NOT NULL;
 ALTER TABLE movies ADD CONSTRAINT DF_MovieBudget DEFAULT 0 FOR movieBudget;
 GO
 
-
--- indices
+-- Índices
 CREATE INDEX IX_Movie_Name ON movies(movieName);
 CREATE INDEX IX_Movies_ReleaseDate ON Movies(movieReleaseDate);
 CREATE INDEX IX_Genre_Name ON genres(genreName); 
@@ -179,7 +173,7 @@ USE deisIMDB;
 GO
 
 -- Ajuste o diretório
-DECLARE @basePath NVARCHAR(260) = N'D:\Coding\FilmesCinema\';
+DECLARE @basePath NVARCHAR(260) = N'D:\Coding\FilmesCinema\'; -- Escreva aqui o seu directório de ficheiros..
 
 
 DECLARE @loads TABLE (
@@ -286,7 +280,6 @@ INSERT INTO continent (continentName) VALUES
 ('Europe'), ('North America'), ('Asia'), ('Africa'), ('Oceania'), ('South America');
     
 -- Platforms
-
  INSERT INTO Platform (platformName, website) VALUES
  ('Netflix', 'https://netflix.com'),
  ('HBO Max', 'https://hbomax.com'),
@@ -397,7 +390,7 @@ UPDATE movies set ageratingid = 6  where movieId = 84084;
 UPDATE movies set ageratingid = 6 where movieId = 93;
 UPDATE movies set ageratingid = 5 where movieId = 66;
 
---*******************************CRIACAO DE VIEWS
+--CRIACÃO DE VIEWS
 
 -- a) Top 5 diretores com mais filmes produzidos
 GO
@@ -411,8 +404,6 @@ JOIN MovieDirector md ON d.directorId = md.directorId
 GROUP BY d.directorId, d.directorName
 ORDER BY COUNT(md.movieId) DESC;
 GO
-
-
 
 -- b) Top 10 atores participantes em filmes
 GO
@@ -465,9 +456,6 @@ SELECT * FROM  vw_ContinentsMoreThan10Movies;
 
 SELECT * FROM  vw_CountriesLessThan5Movies;
 
-
---****************************************CONSULTAS
-
 -- ============================================
 -- EXECUTAR CONSULTAS (Etapa 2 - Exercicios 4.1 a 4.9)
 -- ============================================
@@ -491,8 +479,6 @@ INNER JOIN genres_movies vg ON v.movieId = vg.movieId  -- Liga videos aos seus g
 INNER JOIN Genres g ON vg.genreId = g.genreId        -- Obtem detalhes do genero
 WHERE g.genreName = 'Action';                       -- Filtra apenas videos de Action
 GO
-
-
 
 -- ----------------------------------------------------------------------------
 -- EXERCiCIO 4.2: Obtenha/Liste a informacao de todos os directores de videos produzidos num qualquer pais.
@@ -689,8 +675,7 @@ GO
 PRINT '=== CONSULTAS EXECUTADAS COM SUCESSO ===';
 
 
---********************************CRIACAO DE PROCEDIMENTOS/FUNCTIONS
-
+--CRIACAO DE PROCEDIMENTOS/FUNCTIONS
 
 --2.1. COUNT_MOVIES_MONTH_YEAR <month> <year>
 GO
@@ -706,7 +691,6 @@ BEGIN
       AND YEAR(movieReleaseDate) = @year;
 END
 GO
-
 
 --2.2. COUNT_MOVIES_DIRECTOR <full-name>
 CREATE PROCEDURE dbo.COUNT_MOVIES_DIRECTOR
@@ -780,8 +764,6 @@ END
 GO
    
 
- 
-
 --2.6. GET_MOVIES_WITH_ACTOR_CONTAINING <name> 
 CREATE PROCEDURE dbo.GET_MOVIES_WITH_ACTOR_CONTAINING
     @namePart NVARCHAR(255)
@@ -814,7 +796,6 @@ END
 GO
 
 
-
 --2.8. GET_ACTORS_BY_DIRECTOR <num> <full-name> 
 CREATE PROCEDURE dbo.GET_ACTORS_BY_DIRECTOR
     @topN INT,
@@ -833,8 +814,6 @@ BEGIN
 END
 GO
 
-
-
 --2.9. TOP_MONTH_MOVIE_COUNT <year> 
 CREATE PROCEDURE dbo.TOP_MONTH_MOVIE_COUNT
     @year INT
@@ -850,8 +829,6 @@ BEGIN
     ORDER BY COUNT(*) DESC, MONTH(m.movieReleaseDate);
 END
 GO
-
-/*
 
 --2.10. TOP_VOTED_ACTORS <num>  <year> 
 CREATE PROCEDURE dbo.TOP_VOTED_ACTORS
@@ -875,7 +852,6 @@ BEGIN
     ORDER BY AVG(r.movieRating) DESC, RatedMoviesCount DESC;
 END
 GO
-*/
 
 -- 2.10. TOP_VOTED_ACTORS <num>  <year>
 CREATE OR ALTER PROCEDURE dbo.TOP_VOTED_ACTORS
@@ -1257,14 +1233,7 @@ EXEC dbo.TOP_6_DIRECTORS_WITHIN_FAMILY @yearStart = 2000, @yearEnd = 2020;
 
 --2.14
 EXEC dbo.DISTANCE_BETWEEN_ACTORS @actor1 = N'Leonardo DiCaprio', @actor2 = N'Tom Hardy'; 
-
- 
-
-Select * from MovieActor
---Insert into MovieActor (movieId,actorId) VALUES (63540,2524)
-WHERE movieId = 63540 and actorId = 3895
-SELECT * from Actors WHERE actorName = 'Tom Hardy'
-
+  
 
 --CRIAÇÃO DE TRIGGERS
 
