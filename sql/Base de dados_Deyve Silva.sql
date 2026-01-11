@@ -10,10 +10,10 @@ USE deisIMDB;
 GO
 
 -- Limpar tabelas na ordem correta (devido a constraints FK)
-DROP TABLE IF EXISTS movie_votes;
-DROP TABLE IF EXISTS genres_movies;
-DROP TABLE IF EXISTS MovieActor;
-DROP TABLE IF EXISTS MovieDirector;
+--DROP TABLE IF EXISTS movie_votes;
+--DROP TABLE IF EXISTS genres_movies;
+--DROP TABLE IF EXISTS MovieActor;
+--DROP TABLE IF EXISTS MovieDirector;
 --DROP TABLE IF EXISTS moviePlatform;
 --DROP TABLE IF EXISTS movieCountry;
 --DROP TABLE IF EXISTS interaction;
@@ -22,10 +22,10 @@ DROP TABLE IF EXISTS MovieDirector;
 --DROP TABLE IF EXISTS continent;
 --DROP TABLE IF EXISTS AgeRating;
 
-DROP TABLE IF EXISTS movies;
-DROP TABLE IF EXISTS genres;
-DROP TABLE IF EXISTS directors;
-DROP TABLE IF EXISTS actors;
+--DROP TABLE IF EXISTS movies;
+--DROP TABLE IF EXISTS genres;
+--DROP TABLE IF EXISTS directors;
+--DROP TABLE IF EXISTS actors;
 --DROP TABLE IF EXISTS continent;
 
 GO
