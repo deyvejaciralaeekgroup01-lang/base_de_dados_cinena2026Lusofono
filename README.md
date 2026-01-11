@@ -24,6 +24,7 @@ git clone https://github.com/deyvejaciralaeekgroup01-lang/base_de_dados_cinena20
 ### **a) `ficheiros/`**
 Contém todos os ficheiros utilizados para popular a base de dados.
 
+**NOTA:* Carrega os ficheiros na base de dados manualmente usando o wizard
 **Ficheiros disponíveis:**
 - `Movies`
 - `Actores`
@@ -48,10 +49,6 @@ Contém todos os ficheiros utilizados para popular a base de dados.
 Contém o ficheiro SQL com todos os comandos **DDL** e **DML** utilizados no projeto.
 
 - Abra o ficheiro **`Base de dados_Deyve Silva.sql`**.
-- Ajuste o diretório da pasta `ficheiros/` conforme o caminho no seu computador.
-
-<img width="1493" height="443" alt="image" src="https://github.com/user-attachments/assets/7c25cd81-9843-4523-a96b-6994c623fce4" />
-
 - Execute o ficheiro
 - Faça um select de uma tabelas para ter confirmacao das tabelas e a insercao dos dados
 ---
