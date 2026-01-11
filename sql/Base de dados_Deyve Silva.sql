@@ -30,6 +30,67 @@ DROP TABLE IF EXISTS continent;
 
 GO
 
+-------------------------
+-- DROPAR PROCEDURES
+-------------------------
+IF EXISTS (SELECT * FROM sys.objects WHERE type = 'P' AND name = 'COUNT_MOVIES_MONTH_YEAR')
+    DROP PROCEDURE COUNT_MOVIES_MONTH_YEAR;
+
+IF EXISTS (SELECT * FROM sys.objects WHERE type = 'P' AND name = 'COUNT_MOVIES_DIRECTOR')
+    DROP PROCEDURE COUNT_MOVIES_DIRECTOR;
+
+IF EXISTS (SELECT * FROM sys.objects WHERE type = 'P' AND name = 'COUNT_ACTORS_IN_2_YEARS')
+    DROP PROCEDURE COUNT_ACTORS_IN_2_YEARS;
+
+IF EXISTS (SELECT * FROM sys.objects WHERE type = 'P' AND name = 'COUNT_MOVIES_BETWEEN_YEARS_WITH_N_ACTORS')
+    DROP PROCEDURE COUNT_MOVIES_BETWEEN_YEARS_WITH_N_ACTORS;
+
+IF EXISTS (SELECT * FROM sys.objects WHERE type = 'P' AND name = 'GET_MOVIES_ACTOR_YEAR')
+    DROP PROCEDURE GET_MOVIES_ACTOR_YEAR;
+
+IF EXISTS (SELECT * FROM sys.objects WHERE type = 'P' AND name = 'GET_MOVIES_WITH_ACTOR_CONTAINING')
+    DROP PROCEDURE GET_MOVIES_WITH_ACTOR_CONTAINING;
+
+IF EXISTS (SELECT * FROM sys.objects WHERE type = 'P' AND name = 'GET_TOP_4_YEARS_WITH_MOVIES_CONTAINING')
+    DROP PROCEDURE GET_TOP_4_YEARS_WITH_MOVIES_CONTAINING;
+
+IF EXISTS (SELECT * FROM sys.objects WHERE type = 'P' AND name = 'GET_ACTORS_BY_DIRECTOR')
+    DROP PROCEDURE GET_ACTORS_BY_DIRECTOR;
+
+IF EXISTS (SELECT * FROM sys.objects WHERE type = 'P' AND name = 'TOP_MONTH_MOVIE_COUNT')
+    DROP PROCEDURE TOP_MONTH_MOVIE_COUNT;
+
+IF EXISTS (SELECT * FROM sys.objects WHERE type = 'P' AND name = 'TOP_VOTED_ACTORS')
+    DROP PROCEDURE TOP_VOTED_ACTORS;
+
+IF EXISTS (SELECT * FROM sys.objects WHERE type = 'P' AND name = 'TOP_MOVIES_WITH_MORE_GENDER')
+    DROP PROCEDURE TOP_MOVIES_WITH_MORE_GENDER;
+
+IF EXISTS (SELECT * FROM sys.objects WHERE type = 'P' AND name = 'TOP_MOVIES_WITH_GENDER_BIAS')
+    DROP PROCEDURE TOP_MOVIES_WITH_GENDER_BIAS;
+
+IF EXISTS (SELECT * FROM sys.objects WHERE type = 'P' AND name = 'TOP_6_DIRECTORS_WITHIN_FAMILY')
+    DROP PROCEDURE TOP_6_DIRECTORS_WITHIN_FAMILY;
+
+IF EXISTS (SELECT * FROM sys.objects WHERE type = 'P' AND name = 'DISTANCE_BETWEEN_ACTORS')
+    DROP PROCEDURE DISTANCE_BETWEEN_ACTORS;
+
+
+-------------------------
+-- DROPAR VIEWS
+-------------------------
+IF EXISTS (SELECT * FROM sys.views WHERE name = 'vw_Top5Directors')
+    DROP VIEW dbo.vw_Top5Directors;
+
+IF EXISTS (SELECT * FROM sys.views WHERE name = 'vw_Top10Actors')
+    DROP VIEW vw_Top10Actors;
+
+IF EXISTS (SELECT * FROM sys.views WHERE name = 'vw_ContinentsMoreThan10Movies')
+    DROP VIEW vw_ContinentsMoreThan10Movies;
+
+IF EXISTS (SELECT * FROM sys.views WHERE name = 'vw_CountriesLessThan5Movies')
+    DROP VIEW vw_CountriesLessThan5Movies;
+
 --*************************************CRIAR TABELAS
 -- 1. Primeiro criar tabelas sem depend�ncias FK (ou com menos depend�ncias)
 
@@ -181,8 +242,7 @@ GO
 USE deisIMDB;
 GO
 
-
--- Ajuste o diret�rio
+-- Ajuste o diretorio
 DECLARE @basePath NVARCHAR(260) = N'D:\Projects\Coding\FilmeCiname\base_de_dados_cinena2026Lusofono\ficheiros\';
 
 

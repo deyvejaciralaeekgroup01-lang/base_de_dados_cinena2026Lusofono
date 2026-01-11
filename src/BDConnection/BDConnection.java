@@ -9,7 +9,7 @@ public class BDConnection {
     private String sqlserver = "//localhost:1433";
     private String databaseName="deisIMDB";
     private String user="javaUser";
-    private String password=/*"YourStrong!Passw0rd";*/"ClientS@fe!Passw0rd";
+    private String password="ClientS@fe!Passw0rd";
     private String encrypt="true";
     private String trustServerCertificate="true";
 
