@@ -442,9 +442,6 @@ public class JTableFilmes {
                     int id = (val instanceof Number) ? ((Number) val).intValue()
                             : (val != null ? Integer.parseInt(val.toString()) : -1);
 
-                    if (isActorGlobal){
-                        JOptionPane.showMessageDialog(SwingUtilities.getWindowAncestor(panel),"Nao e permitido eliminar autor");
-                    } else {
                         int confirm = JOptionPane.showConfirmDialog(SwingUtilities.getWindowAncestor(panel),
                                 "Eliminar registro ID " + id + "?", "Confirmar eliminação", JOptionPane.YES_NO_OPTION);
                         if (confirm == JOptionPane.YES_OPTION) {
@@ -452,7 +449,13 @@ public class JTableFilmes {
                             new SwingWorker<Void, Void>() {
                                 @Override
                                 protected Void doInBackground() throws Exception {
-                                    cruDirAc.deleteDirector(id);
+
+                                    if (isActorGlobal){
+                                        cruDirAc.deleteActor(id);
+                                    }else{
+                                        cruDirAc.deleteDirector(id);
+                                    }
+
                                     return null;
                                 }
                                 @Override
@@ -461,7 +464,13 @@ public class JTableFilmes {
                                         get();
                                         // Atualizar UI na EDT
                                         //Toast.show(panel, "Director eliminado com sucesso!", Toast.success(), 1000);
-                                        JOptionPane.showMessageDialog(panel,"Director eliminado com sucesso!");
+
+                                        if (isActorGlobal){
+                                            JOptionPane.showMessageDialog(panel,"Actor eliminado com sucesso!");
+                                        }else{
+                                            JOptionPane.showMessageDialog(panel,"Director eliminado com sucesso!");
+                                        }
+
                                         // Remover imediatamente a linha do modelo
                                         if (modelRow >= 0 && modelRow < model.getRowCount()) {
                                             model.removeRow(modelRow);
@@ -477,7 +486,7 @@ public class JTableFilmes {
                                 }
                             }.execute();
                         }
-                    }
+
                 });
             }
 

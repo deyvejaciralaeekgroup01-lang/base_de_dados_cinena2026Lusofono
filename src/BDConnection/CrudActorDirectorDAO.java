@@ -52,6 +52,20 @@ public class CrudActorDirectorDAO {
         }
     }
 
+    // Apaga um Director pelo ID.
+    public boolean deleteActor(int actorId) {
+        final String sql = "DELETE FROM actors WHERE actorid = ?";
+        try (Connection conn = ConnectionProvider.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setInt(1, actorId);
+            int rows = ps.executeUpdate();
+            return rows > 0;
+        } catch (SQLException e) {
+            throw new RuntimeException("Erro ao apagar actor: " + e.getMessage(), e);
+        }
+    }
+
     // ========= DIRECTOR =========
      //Cria um Director na base.
        public int createDirector(String directorName) {
