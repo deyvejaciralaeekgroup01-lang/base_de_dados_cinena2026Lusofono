@@ -1,6 +1,6 @@
 -- Deyve Silva - a22403432  
 -- Laeek Ravat - a22504368
--- Jacira Lourenço - a22502992
+-- Jacira Lourenï¿½o - a22502992
 
 IF NOT EXISTS (SELECT name FROM sys.databases WHERE name = 'deisIMDB')
 CREATE DATABASE deisIMDB;
@@ -31,7 +31,7 @@ DROP TABLE IF EXISTS continent;
 GO
 
 --*************************************CRIAR TABELAS
--- 1. Primeiro criar tabelas sem dependências FK (ou com menos dependências)
+-- 1. Primeiro criar tabelas sem dependï¿½ncias FK (ou com menos dependï¿½ncias)
 
 CREATE TABLE genres (
     genreId INT PRIMARY KEY,
@@ -182,8 +182,8 @@ USE deisIMDB;
 GO
 
 
--- Ajuste o diretório
-DECLARE @basePath NVARCHAR(260) = N'D:\Projects\Coding\FilmesCinema\';
+-- Ajuste o diretï¿½rio
+DECLARE @basePath NVARCHAR(260) = N'D:\Projects\Coding\FilmeCiname\base_de_dados_cinena2026Lusofono\ficheiros\';
 
 
 DECLARE @loads TABLE (
@@ -220,7 +220,7 @@ WHILE @@FETCH_STATUS = 0
 BEGIN
     SET @path = @basePath + @file;
 
-    -- 1ª tentativa: caso os ficheiros sejam carregados em linux
+    -- 1ï¿½ tentativa: caso os ficheiros sejam carregados em linux
     SET @sql = N'
 BULK INSERT ' + QUOTENAME(@tbl) + N'
 FROM ' + QUOTENAME(@path,'''') + N'
@@ -241,7 +241,7 @@ WITH (
 
 
     BEGIN CATCH
-        -- 2ª tentativa: caso os ficheiros sejam carregados em windows
+        -- 2ï¿½ tentativa: caso os ficheiros sejam carregados em windows
         PRINT N'Falha com 0x0a. A tentar novamente com 0x0d0a...';
         SET @sql = N'
 BULK INSERT ' + QUOTENAME(@tbl) + N'
@@ -288,12 +288,12 @@ ALTER TABLE actors ADD created_at DATETIME DEFAULT GETDATE();
     -- 16. Inserir Interactions
 
     INSERT INTO Interaction (movieId, userId, interactionType, details) VALUES
-    (56429, 1001, 'VIEW', 'Usuário visualizou detalhes do filme'),
-    --(56429, 1002, 'RATE', 'Avaliação: 4 estrelas'),
-    (95853, 1001, 'SEARCH', 'Pesquisa por filmes de animação'),
-    (149870, 1003, 'VIEW', 'Visualização em dispositivo móvel'),
-    (84084, 1004, 'RATE', 'Avaliação: 5 estrelas'),
-    (12166, 1002, 'VIEW', 'Visualização rápida');
+    (56429, 1001, 'VIEW', 'Usuï¿½rio visualizou detalhes do filme'),
+    --(56429, 1002, 'RATE', 'Avaliaï¿½ï¿½o: 4 estrelas'),
+    (95853, 1001, 'SEARCH', 'Pesquisa por filmes de animaï¿½ï¿½o'),
+    (149870, 1003, 'VIEW', 'Visualizaï¿½ï¿½o em dispositivo mï¿½vel'),
+    (84084, 1004, 'RATE', 'Avaliaï¿½ï¿½o: 5 estrelas'),
+    (12166, 1002, 'VIEW', 'Visualizaï¿½ï¿½o rï¿½pida');
 
 -- Continentes
     INSERT INTO continent (continentName) VALUES
@@ -331,12 +331,12 @@ INSERT INTO country (countryName, continentId) VALUES
  -- 15. Inserir MovieCountry
   INSERT INTO MovieCountry (movieId, countryId) VALUES
     (56429, 1),  -- EUA
-    (95853, 3),  -- Japão
-    (90532, 4),  -- Índia
+    (95853, 3),  -- Japï¿½o
+    (90532, 4),  -- ï¿½ndia
     (149870, 1), -- EUA
-    (84084, 5),  -- França
+    (84084, 5),  -- Franï¿½a
     (12166, 7),  -- Brasil
-    (29920, 8),  -- Canadá
+    (29920, 8),  -- Canadï¿½
     (24,(SELECT countryId FROM Country WHERE countryName='India')),
     (25,(SELECT countryId FROM Country WHERE countryName='China')),
     (26,(SELECT countryId FROM Country WHERE countryName='Japan')),
@@ -356,7 +356,7 @@ INSERT INTO country (countryName, continentId) VALUES
     ('14+', 'Maiores de 14', 14),
     ('16+', 'Maiores de 16', 16),
     ('18+', 'Maiores de 18', 18),
-    ('-10', 'Adequado até 10 anos', NULL);
+    ('-10', 'Adequado atï¿½ 10 anos', NULL);
 
      -- 14. Inserir MoviePlatform 
     INSERT INTO MoviePlatform (movieId, platformId, availableSince) VALUES
@@ -990,8 +990,8 @@ PRINT '=== EXECUTANDO CONSULTAS ===';
 -- ABORDAGEM: 
 -- 1. JOIN triplo: Movie -> MovieGenre (tabela de juncao) -> Genre
 -- 2. Filtro no WHERE pelo nome do genero especifico ('Action')
--- 3. Seleciona apenas informações essenciais do video
--- OBS: Usamos INNER JOIN para garantir que só retorne videos com o genero especificado
+-- 3. Seleciona apenas informaï¿½ï¿½es essenciais do video
+-- OBS: Usamos INNER JOIN para garantir que sï¿½ retorne videos com o genero especificado
 -- ----------------------------------------------------------------------------
 PRINT '4.1 - Videos do genero Action:';
 SELECT 
@@ -1026,14 +1026,14 @@ GO
 
 -- ----------------------------------------------------------------------------
 -- EXERCiCIO 4.3: Obtenha/Liste a informacao de todos os atores do sexo Masculino 
---                que participaram em filmes de paises Asiáticos.
+--                que participaram em filmes de paises Asiï¿½ticos.
 -- ABORDAGEM:
 -- 1. JOIN complexa: Actor -> MovieActor -> MovieCountry -> Country -> Continent
--- 2. Duplo filtro: gênero Masculino + continente Ásia
--- 3. DISTINCT para atores que atuaram em multiplos filmes asiáticos
--- OBS: A hierarquia Continent->Country permite filtragem geográfica flexivel
+-- 2. Duplo filtro: gï¿½nero Masculino + continente ï¿½sia
+-- 3. DISTINCT para atores que atuaram em multiplos filmes asiï¿½ticos
+-- OBS: A hierarquia Continent->Country permite filtragem geogrï¿½fica flexivel
 -- ----------------------------------------------------------------------------
-PRINT '4.3 - Atores Masculinos em filmes Asiáticos:';
+PRINT '4.3 - Atores Masculinos em filmes Asiï¿½ticos:';
 SELECT DISTINCT 
     a.actorId, 
     a.actorName, 
@@ -1044,42 +1044,42 @@ INNER JOIN MovieActor va ON a.actorId = va.actorId              -- Liga ator aos
 INNER JOIN MovieCountry vc ON va.movieId = vc.movieId           -- Liga videos aos paises
 INNER JOIN Country c ON vc.countryId = c.countryId              -- Obtem pais
 INNER JOIN Continent ct ON c.continentId = ct.continentId       -- Obtem continente do pais
-WHERE a.actorGender = 'M' AND ct.continentName = 'Asia';        -- Filtro duplo: gênero + continente
+WHERE a.actorGender = 'M' AND ct.continentName = 'Asia';        -- Filtro duplo: gï¿½nero + continente
 GO
 
 
 
 
 -- ----------------------------------------------------------------------------
--- EXERCiCIO 4.4: Obtenha/Liste todos os videos lançados nos meses de Maio, Junho e Julho.
+-- EXERCiCIO 4.4: Obtenha/Liste todos os videos lanï¿½ados nos meses de Maio, Junho e Julho.
 -- ABORDAGEM:
--- 1. Consulta simples na tabela Movie (não precisa de JOINs)
--- 2. Uso da funcao MONTH() para extrair o mês da data
+-- 1. Consulta simples na tabela Movie (nï¿½o precisa de JOINs)
+-- 2. Uso da funcao MONTH() para extrair o mï¿½s da data
 -- 3. Operador IN para filtrar multiplos meses simultaneamente
--- 4. ORDER BY para ordenacao cronológica
+-- 4. ORDER BY para ordenacao cronolï¿½gica
 -- OBS: Funcao MONTH() retorna inteiro (5=Maio, 6=Junho, 7=Julho)
 -- ----------------------------------------------------------------------------
-PRINT '4.4 - Videos lançados em Maio, Junho e Julho:';
+PRINT '4.4 - Videos lanï¿½ados em Maio, Junho e Julho:';
 SELECT 
     movieId, 
     movieName, 
     movieReleaseDate,
-    MONTH(movieReleaseDate) as ReleaseMonth  -- Extrai mês para visualizacao
+    MONTH(movieReleaseDate) as ReleaseMonth  -- Extrai mï¿½s para visualizacao
 FROM Movies
 WHERE MONTH(movieReleaseDate) IN (5, 6, 7)   -- Filtra pelos meses especificados
-ORDER BY movieReleaseDate;                    -- Ordena por data de lançamento
+ORDER BY movieReleaseDate;                    -- Ordena por data de lanï¿½amento
 GO
 
 -- ----------------------------------------------------------------------------
 -- EXERCiCIO 4.5: Obtenha/Liste todos os videos de accao (Action) realizados num 
---                pais europeu e lançados em Dezembro.
+--                pais europeu e lanï¿½ados em Dezembro.
 -- ABORDAGEM:
 -- 1. JOIN multipla: Movie -> MovieGenre -> Genre -> MovieCountry -> Country -> Continent
--- 2. Filtro triplo: genero Action + continente Europa + mês Dezembro
+-- 2. Filtro triplo: genero Action + continente Europa + mï¿½s Dezembro
 -- 3. MONTH()=12 para Dezembro
--- OBS: Condições especificas combinadas com AND para precisão na filtragem
+-- OBS: Condiï¿½ï¿½es especificas combinadas com AND para precisï¿½o na filtragem
 -- ----------------------------------------------------------------------------
-PRINT '4.5 - Videos de Action europeus lançados em Dezembro:';
+PRINT '4.5 - Videos de Action europeus lanï¿½ados em Dezembro:';
 SELECT 
     v.movieId, 
     v.movieName, 
@@ -1094,7 +1094,7 @@ INNER JOIN Country c ON vc.countryId = c.countryId              -- Obtem nome do
 INNER JOIN Continent ct ON c.continentId = ct.continentId       -- Para filtrar por continente
 WHERE g.genreId = 3817                                    -- Condicao 1: genero Action
   AND ct.continentId = 1                                  -- Condicao 2: Continente Europa
-  AND MONTH(v.movieReleaseDate) = 12;                           -- Condicao 3: Mês Dezembro
+  AND MONTH(v.movieReleaseDate) = 12;                           -- Condicao 3: Mï¿½s Dezembro
 GO
 
 -- ----------------------------------------------------------------------------
@@ -1125,14 +1125,14 @@ GO
 -- 3. GROUP BY por continente para agregacao
 -- 4. COUNT(DISTINCT) para evitar contagem duplicada de videos em multiplos ies
 -- 5. ORDER BY descendente para destacar continentes com mais videos
--- OBS: DISTINCT no COUNT e crucial pois um video pode ser produzido em váarios paises
+-- OBS: DISTINCT no COUNT e crucial pois um video pode ser produzido em vï¿½arios paises
 -- ----------------------------------------------------------------------------
 PRINT '4.7 - Videos para menores de 10 por Continente:';
 SELECT 
     ct.continentName, 
     COUNT(DISTINCT v.movieId) as TotalMovies  -- Conta vdeos unicos por continente
 FROM Movies v
-INNER JOIN AgeRating ar ON v.ageRatingId = ar.ageRatingId       -- Classificacao etária
+INNER JOIN AgeRating ar ON v.ageRatingId = ar.ageRatingId       -- Classificacao etï¿½ria
 INNER JOIN MovieCountry vc ON v.movieId = vc.movieId            -- ies de producao
 INNER JOIN Country c ON vc.countryId = c.countryId              -- Detalhes do pais
 INNER JOIN Continent ct ON c.continentId = ct.continentId       -- Continente do pais

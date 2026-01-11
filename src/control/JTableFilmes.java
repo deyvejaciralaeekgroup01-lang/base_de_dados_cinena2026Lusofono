@@ -1,10 +1,8 @@
 
 package control;
-
 import BDConnection.CrudActorDirectorDAO;
 import view.Tarefas;
 import view.Toast;
-
 import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
@@ -17,34 +15,30 @@ import java.util.Objects;
 import java.util.regex.Pattern;
 
 public class JTableFilmes {
-
     // ===== Campos de classe =====
     private DefaultTableModel model;
     JPanel panel;
     private CrudActorDirectorDAO cruDirAc;
     private boolean isActorGlobal;
     Tarefas tar;
-
     //mudar o texto para Adicionar ou Adicionar
     private String btnText;
-
     // Filtro (no topo)
     private JTextField tfFilter;
-
     // Campos de formulario (rodape)
     private JTextField tfNomeInput;
     private JComboBox<String> cbSexo;
-
     private JButton btnAdd;
     //for updates
     private int idUpdate;
-
     // JTable (referencia) para reaplicar model/sorter/renderers
     private JTable table;
 
+    // ===== Novos campos =====
+    private Runnable onDataChangedRef;                    // preserva callback
+    private TableRowSorter<DefaultTableModel> sorter;     // preserva sorter/filtro
 
     public JTableFilmes() throws SQLException {
-
         panel = new JPanel(new BorderLayout(8, 8));
         panel.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
         panel.setBackground(new Color(245, 245, 245));
@@ -54,36 +48,26 @@ public class JTableFilmes {
         btnText = "Adicionar";
     }
 
-
     public JPanel jtableGeneral(Object[][] dados, String[] cols, JPanel inputs, boolean isActor, String labelText) {
-
         return jtableGeneral(dados, cols, inputs, isActor, labelText, null);
     }
 
-    // ====== Sobrecarga: com callback para refresh automático (opcional) ======
     public JPanel jtableGeneral(Object[][] dados, String[] cols, JPanel inputs, boolean isActor, String labelText,
                                 Runnable onDataChanged) {
-        // --- Garantir que "Actions" exista nas colunas ---
         String[] colsFinal = ensureActionsColumn(cols);
         isActorGlobal = isActor;
-
-        // --- Garantir que "Actions" tenha celula adicional nas linhas ---
         Object[][] dadosFinal = ensureActionsData(dados, colsFinal);
 
-        // Cria a tabela e garante que 'model' seja o do JTable
         JTable table = tabela(dadosFinal, colsFinal);
         this.table = table;
         this.model = (DefaultTableModel) table.getModel();
 
-        // centralizar dados na table
         ((DefaultTableCellRenderer) table.getDefaultRenderer(Object.class))
                 .setHorizontalAlignment(SwingConstants.CENTER);
 
-        // RowSorter + filtro
-        final TableRowSorter<DefaultTableModel> sorter = new TableRowSorter<>(model);
-        table.setRowSorter(sorter);
+        this.sorter = new TableRowSorter<>(model);
+        table.setRowSorter(this.sorter);
 
-        // ====== TOPO: campo de filtro + botão "Limpar filtro" ======
         JPanel header = new JPanel();
         header.setLayout(new BoxLayout(header, BoxLayout.Y_AXIS));
         header.setOpaque(false);
@@ -94,8 +78,11 @@ public class JTableFilmes {
 
         final JTextField tfFilterLocal = new JTextField(25);
         JButton btnClearFilter = new JButton("Limpar filtro");
+
         filterPanel.add(tfFilterLocal);
         filterPanel.add(btnClearFilter);
+
+        this.tfFilter = tfFilterLocal;
 
         tfFilterLocal.getDocument().addDocumentListener(new javax.swing.event.DocumentListener() {
             private void apply() {
@@ -119,7 +106,6 @@ public class JTableFilmes {
         header.add(filterPanel);
         panel.add(header, BorderLayout.NORTH);
 
-        // ====== Hover effect (pula a coluna "Actions") ======
         final int[] hoverRow = {-1};
         table.addMouseMotionListener(new java.awt.event.MouseMotionAdapter() {
             @Override public void mouseMoved(java.awt.event.MouseEvent e) {
@@ -158,14 +144,14 @@ public class JTableFilmes {
             }
         }
 
-        // ====== Configurar coluna "Actions" por NOME ======
+        this.onDataChangedRef = onDataChanged;
+
         setupActionsColumn(table, model, "Actions", onDataChanged);
-        //esconder a coluna do created_at
+
         if (Arrays.asList(colsFinal).contains("created_at")) {
             tar.hideColumnByName(table, "created_at");
         }
 
-        // ====== rodape: Nome + (opcional) Sexo + Adicionar ======
         JPanel bottomControls = new JPanel();
         bottomControls.setLayout(new BoxLayout(bottomControls, BoxLayout.Y_AXIS));
         bottomControls.setOpaque(false);
@@ -174,10 +160,10 @@ public class JTableFilmes {
         inputsLine.setOpaque(false);
 
         JLabel lblNome = new JLabel(labelText);
-        tfNomeInput = new JTextField(20); // campo de nome (ator ou diretor)
-
+        tfNomeInput = new JTextField(20);
         JLabel lblSexo = new JLabel("Sexo:");
         cbSexo = new JComboBox<>(new String[]{"Masculino", "Feminino"});
+
         lblSexo.setVisible(isActor);
         cbSexo.setVisible(isActor);
 
@@ -191,51 +177,106 @@ public class JTableFilmes {
 
         btnAdd.addActionListener(e -> {
             if (!tfNomeInput.getText().trim().isEmpty()) {
-                try {
-
-                    if(btnText == "Adicionar"){
-                        if (isActorGlobal) {
-                            String nome = tfNomeInput.getText().trim();
-                            String generoUI = (String) cbSexo.getSelectedItem();
-                            String generoDB = normalizeGenderToChar(generoUI); // "M"/"F"/null
-                            cruDirAc.createActor(nome, generoDB);
-                            Toast.show(panel, "Actor criado com sucesso!", Toast.success(), 30000);
-                        } else {
-                            cruDirAc.createDirector(tfNomeInput.getText().trim());
-                            Toast.show(panel, "Director criado com sucesso!", Toast.success(), 30000);
-                        }
-                    }
-                    else
-                        {
+                // Executar operação de BD fora da EDT
+                if ("Adicionar".equals(btnText)) {
+                    // CREATE
+                    new SwingWorker<Void, Void>() {
+                        @Override
+                        protected Void doInBackground() throws Exception {
                             if (isActorGlobal) {
                                 String nome = tfNomeInput.getText().trim();
                                 String generoUI = (String) cbSexo.getSelectedItem();
-                                String generoDB = normalizeGenderToChar(generoUI); // "M"/"F"/null
-                                cruDirAc.updateActor(idUpdate,nome,generoDB);
-                                Toast.show(panel, "Actor editado com sucesso!", Toast.success(), 10000);
+                                String generoDB = normalizeGenderToChar(generoUI);
+                                cruDirAc.createActor(nome, generoDB);
                             } else {
-                                cruDirAc.updateDirector(idUpdate,tfNomeInput.getText().trim());
-                                Toast.show(panel, "Director editado com sucesso!", Toast.success(), 10000);
+                                cruDirAc.createDirector(tfNomeInput.getText().trim());
+                            }
+                            return null;
+                        }
+                        @Override
+                        protected void done() {
+                            try {
+                                get();
+                                if (isActorGlobal) {
+                                    Toast.show(panel, "Actor criado com sucesso!", Toast.success(), 3000);
+                                } else {
+                                    JOptionPane.showMessageDialog(panel,"Director criado com sucesso!");
+                                    //Toast.show(panel, "Director criado com sucesso!", Toast.success(), 1000);
+                                }
+                                // Limpar campos e voltar a modo "Adicionar"
+                                tfNomeInput.setText("");
+                                btnText = "Adicionar";
+                                btnAdd.setText(btnText);
+                                if (isActorGlobal) cbSexo.setSelectedIndex(0);
+
+                                // Recarregar da BD, se callback fornecido
+                                if (onDataChangedRef != null) onDataChangedRef.run();
+
+                            } catch (Exception exAdd) {
+                                JOptionPane.showMessageDialog(panel, "Erro ao adicionar: " + exAdd.getMessage(),
+                                        "Erro", JOptionPane.ERROR_MESSAGE);
                             }
                         }
+                    }.execute();
+                } else {
+                    // UPDATE
+                    final String novoNome = tfNomeInput.getText().trim();
+                    final String generoUI = (String) cbSexo.getSelectedItem();
+                    final String generoDB = isActorGlobal ? normalizeGenderToChar(generoUI) : null;
 
-                    // Limpar campos
-                    tfNomeInput.setText("");
-                    btnAdd.setText("Adicionar");
-                    if (isActorGlobal) cbSexo.setSelectedIndex(0);
+                    new SwingWorker<Void, Void>() {
+                        @Override
+                        protected Void doInBackground() throws Exception {
+                            if (isActorGlobal) {
+                                cruDirAc.updateActor(idUpdate, novoNome, generoDB);
+                            } else {
+                                cruDirAc.updateDirector(idUpdate, novoNome);
+                            }
+                            return null;
+                        }
+                        @Override
+                        protected void done() {
+                            try {
+                                get();
+                                if (isActorGlobal) {
+                                    Toast.show(panel, "Actor editado com sucesso!", Toast.success(), 3000);
+                                } else {
+                                    JOptionPane.showMessageDialog(panel,"Director Editado com sucesso!");
+                                    //Toast.show(panel, "Director editado com sucesso!", Toast.success(), 1000);
+                                }
 
-                    // Recarregar da BD, se callback fornecido
-                    if (onDataChanged != null) onDataChanged.run();
+                                // Atualizar imediatamente o modelo (linha atualmente selecionada)
+                                int viewRow = table.getSelectedRow();
+                                if (viewRow >= 0) {
+                                    int modelRow = table.convertRowIndexToModel(viewRow);
+                                    // 0 = ID, 1 = Nome, 2 = Sexo (se existir)
+                                    if (model.getColumnCount() > 1) model.setValueAt(novoNome, modelRow, 1);
+                                    if (isActorGlobal && model.getColumnCount() > 2) {
+                                        model.setValueAt(generoDB != null ? generoDB : "", modelRow, 2);
+                                    }
+                                }
 
-                    // (Opcional: rolar para ultima linha apos recarga. Se preferir manter, faca no callback.)
-                } catch (Exception exAdd) {
-                    JOptionPane.showMessageDialog(panel, "Erro ao adicionar: " + exAdd.getMessage(),
-                            "Erro", JOptionPane.ERROR_MESSAGE);
+                                // Limpar campos e restaurar modo
+                                tfNomeInput.setText("");
+                                btnText = "Adicionar";
+                                btnAdd.setText(btnText);
+                                if (isActorGlobal) cbSexo.setSelectedIndex(0);
+
+                                // Recarregar da BD, se callback fornecido
+                                if (onDataChangedRef != null) onDataChangedRef.run();
+
+                            } catch (Exception exUpd) {
+                                JOptionPane.showMessageDialog(panel, "Erro ao actualizar: " + exUpd.getMessage(),
+                                        "Erro", JOptionPane.ERROR_MESSAGE);
+                            }
+                        }
+                    }.execute();
                 }
             } else {
                 tfNomeInput.setBorder(BorderFactory.createLineBorder(Color.RED));
                 Timer t = new Timer(1200, ev -> tfNomeInput.setBorder(UIManager.getBorder("TextField.border")));
-                t.setRepeats(false); t.start();
+                t.setRepeats(false);
+                t.start();
             }
         });
 
@@ -244,17 +285,15 @@ public class JTableFilmes {
 
         panel.revalidate();
         panel.repaint();
+
         return panel;
     }
 
-    /**
-     * Cria a JTable com modelo que so permite edicao na coluna "Actions".
-     */
+    /** Cria a JTable com modelo que so permite edicao na coluna "Actions". */
     public JTable tabela(Object[][] dados, String[] cols) {
         model = new DefaultTableModel(dados, cols) {
             @Override
             public boolean isCellEditable(int row, int column) {
-                // Apenas a coluna "Actions" é editável (para capturar cliques nos botões)
                 return "Actions".equals(getColumnName(column));
             }
         };
@@ -265,22 +304,17 @@ public class JTableFilmes {
         table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         table.getTableHeader().setFont(table.getTableHeader().getFont().deriveFont(Font.BOLD));
 
-        // Scroll pane
         JScrollPane scroll = new JScrollPane(table);
         scroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
 
-        // Centro com scroll
         JPanel center = new JPanel(new BorderLayout(6, 6));
         center.setOpaque(false);
         center.add(scroll, BorderLayout.CENTER);
-        panel.add(center, BorderLayout.CENTER);
 
+        panel.add(center, BorderLayout.CENTER);
         return table;
     }
 
-    /**
-     * Garante que "Actions" exista nas colunas; se nao existir, adiciona ao final.
-     */
     private String[] ensureActionsColumn(String[] cols) {
         if (cols == null) {
             return new String[]{"Actions"};
@@ -292,14 +326,8 @@ public class JTableFilmes {
         return out;
     }
 
-    /**
-     * Garante que o array de dados possua uma celula extra por linha para "Actions".
-     * Se ja houver a coluna "Actions" (pela contagem de cols), mas os dados nao tiverem a celula,
-     * cria uma copia de cada linha com +1 posicao (valor null).
-     */
     private Object[][] ensureActionsData(Object[][] dados, String[] colsFinal) {
         if (dados == null || dados.length == 0) {
-            // cria matriz vazia com 0 linhas e colsFinal.length colunas
             return new Object[0][colsFinal.length];
         }
         int expectedCols = colsFinal.length;
@@ -310,16 +338,12 @@ public class JTableFilmes {
         for (int i = 0; i < dados.length; i++) {
             Object[] src = dados[i];
             Object[] dst = Arrays.copyOf(src, expectedCols);
-            dst[expectedCols - 1] = null; // placeholder para Actions
+            dst[expectedCols - 1] = null;
             expanded[i] = dst;
         }
         return expanded;
     }
 
-    /**
-     * Encontra a coluna "Actions" por nome e aplica renderer/editor com botoes ✎/✖,
-     * alem de definir largura adequada.
-     */
     private void setupActionsColumn(JTable table, DefaultTableModel model, String actionsColName,
                                     Runnable onDataChanged) {
         int actionsColIndex = -1;
@@ -329,12 +353,13 @@ public class JTableFilmes {
                 break;
             }
         }
-        if (actionsColIndex < 0) return; // sem coluna "Actions"
+        if (actionsColIndex < 0) return;
 
-        // --- Renderer ---
+        final Runnable refreshCb = (onDataChanged != null) ? onDataChanged : this.onDataChangedRef;
+
         class ActionsRenderer extends JPanel implements javax.swing.table.TableCellRenderer {
             private final JButton editBtn = new JButton("\u270E"); // ✎
-            private final JButton delBtn = new JButton("\u2716");  // ✖
+            private final JButton delBtn = new JButton("\u2716"); // ✖
             ActionsRenderer() {
                 setLayout(new FlowLayout(FlowLayout.CENTER, 6, 0));
                 setOpaque(true);
@@ -358,7 +383,6 @@ public class JTableFilmes {
             }
         }
 
-        // --- Editor ---
         class ActionsEditor extends javax.swing.AbstractCellEditor implements javax.swing.table.TableCellEditor {
             private final JPanel editorPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 6, 0));
             private final JButton editBtn = new JButton("\u270E");
@@ -379,25 +403,20 @@ public class JTableFilmes {
                 editorPanel.add(editBtn);
                 editorPanel.add(delBtn);
 
-                // ===== CLIQUE EM EDITAR =====
+                // EDITAR
                 editBtn.addActionListener(e -> {
-
                     btnText = "Actualizar";
                     btnAdd.setText(btnText);
-
 
                     int modelRow = table.convertRowIndexToModel(editingRow);
                     Object idVal = model.getValueAt(modelRow, 0);
                     idUpdate = Integer.parseInt(idVal.toString());
 
-                    // Assumindo: 0 = ID, 1 = Nome, 2 = Sexo (se existir)
                     Object nomeVal = (model.getColumnCount() > 1) ? model.getValueAt(modelRow, 1) : null;
                     Object sexoVal = (model.getColumnCount() > 2) ? model.getValueAt(modelRow, 2) : null;
 
-                    // Preencher campos conforme o tipo
                     if (isActorGlobal) {
                         tfNomeInput.setText(nomeVal != null ? nomeVal.toString() : "");
-                        // Converter "M"/"F" -> "Masculino"/"Feminino" para o combo
                         if (sexoVal != null) {
                             String s = sexoVal.toString().trim();
                             String sexoUI = s.equalsIgnoreCase("M") ? "Masculino" :
@@ -408,43 +427,57 @@ public class JTableFilmes {
                         }
                     } else {
                         tfNomeInput.setText(nomeVal != null ? nomeVal.toString() : "");
-                        // Diretor: não mexe no combo de sexo
                     }
 
-                    // Apenas carrega os campos; não salva no banco aqui.
                     fireEditingStopped();
                 });
 
-                // ===== CLIQUE EM EXCLUIR =====
+                // ELIMINAR
                 delBtn.addActionListener(e -> {
+                    // encerrar editor imediatamente para evitar loops na EDT
+                    fireEditingStopped();
+
                     int modelRow = table.convertRowIndexToModel(editingRow);
-                    Object val = model.getValueAt(modelRow, 0); // coluna 0 = ID
+                    Object val = model.getValueAt(modelRow, 0);
                     int id = (val instanceof Number) ? ((Number) val).intValue()
                             : (val != null ? Integer.parseInt(val.toString()) : -1);
 
                     if (isActorGlobal){
                         JOptionPane.showMessageDialog(SwingUtilities.getWindowAncestor(panel),"Nao e permitido eliminar autor");
-                    }
-                    else
-                          {
+                    } else {
                         int confirm = JOptionPane.showConfirmDialog(SwingUtilities.getWindowAncestor(panel),
                                 "Eliminar registro ID " + id + "?", "Confirmar eliminação", JOptionPane.YES_NO_OPTION);
-
                         if (confirm == JOptionPane.YES_OPTION) {
-                            try {
+                            // Operação de BD fora da EDT
+                            new SwingWorker<Void, Void>() {
+                                @Override
+                                protected Void doInBackground() throws Exception {
+                                    cruDirAc.deleteDirector(id);
+                                    return null;
+                                }
+                                @Override
+                                protected void done() {
+                                    try {
+                                        get();
+                                        // Atualizar UI na EDT
+                                        //Toast.show(panel, "Director eliminado com sucesso!", Toast.success(), 1000);
+                                        JOptionPane.showMessageDialog(panel,"Director eliminado com sucesso!");
+                                        // Remover imediatamente a linha do modelo
+                                        if (modelRow >= 0 && modelRow < model.getRowCount()) {
+                                            model.removeRow(modelRow);
+                                        }
 
-                                cruDirAc.deleteDirector(id);
-                                Toast.show(panel, "Director eliminado com sucesso!", Toast.success(), 10000);
+                                        // Se houver callback, recarrega da BD (opcional)
+                                        if (refreshCb != null) refreshCb.run();
 
-                                if (onDataChanged != null) onDataChanged.run();
-                            } catch (Exception exDel) {
-                                JOptionPane.showMessageDialog(panel, "Erro ao eliminar: " + exDel.getMessage(),
-                                        "Erro", JOptionPane.ERROR_MESSAGE);
-                            }
+                                    } catch (Exception exDel) {
+                                        JOptionPane.showMessageDialog(panel, "Erro ao eliminar: " + exDel.getMessage(),
+                                                "Erro", JOptionPane.ERROR_MESSAGE);
+                                    }
+                                }
+                            }.execute();
                         }
                     }
-
-                    fireEditingStopped();
                 });
             }
 
@@ -466,7 +499,6 @@ public class JTableFilmes {
         col.setMaxWidth(180);
     }
 
-    /** Localiza índice da coluna por nome na VIEW */
     private int actionsColIndex(JTable table, String actionsColName) {
         for (int i = 0; i < table.getColumnModel().getColumnCount(); i++) {
             if (Objects.equals(actionsColName, table.getColumnName(i))) {
@@ -476,9 +508,6 @@ public class JTableFilmes {
         return -1;
     }
 
-    // ====== Utilitarios adicionais: extras ======
-
-    /** Recarrega todo o conteudo do model com novos dados/colunas (sem recriar JTable) */
     public void setData(Object[][] dados, String[] cols) {
         String[] colsFinal = ensureActionsColumn(cols);
         Object[][] dadosFinal = ensureActionsData(dados, colsFinal);
@@ -488,26 +517,32 @@ public class JTableFilmes {
                 return "Actions".equals(getColumnName(column));
             }
         };
+
         this.model = newModel;
         this.table.setModel(newModel);
 
-        // Reaplica sorter
-        /*
-        TableRowSorter<DefaultTableModel> sorter = new TableRowSorter<>(newModel);
-        table.setRowSorter(sorter);*/
+        this.sorter = new TableRowSorter<>(newModel);
+        this.table.setRowSorter(this.sorter);
 
-        // Reconfigura coluna Actions
-        setupActionsColumn(this.table, newModel, "Actions", null);
+        if (this.tfFilter != null) {
+            String text = this.tfFilter.getText();
+            if (text != null && !text.trim().isEmpty()) {
+                this.sorter.setRowFilter(RowFilter.regexFilter("(?i)" + Pattern.quote(text)));
+            } else {
+                this.sorter.setRowFilter(null);
+            }
+        }
+
+        setupActionsColumn(this.table, newModel, "Actions", this.onDataChangedRef);
 
         this.table.revalidate();
         this.table.repaint();
-        //esconder a coluna do created_at
+
         if (Arrays.asList(colsFinal).contains("created_at")) {
             tar.hideColumnByName(table, "created_at");
         }
     }
 
-    /** Converte "Masculino"/"Feminino" => "M"/"F" (para CHAR(1) no SQL) */
     private String normalizeGenderToChar(String gender) {
         if (gender == null) return null;
         String s = gender.trim();
@@ -521,6 +556,4 @@ public class JTableFilmes {
         if (lower.startsWith("f")) return "F";
         return null;
     }
-
-
 }

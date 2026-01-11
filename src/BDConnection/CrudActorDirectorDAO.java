@@ -21,7 +21,7 @@ public class CrudActorDirectorDAO {
 
             ps.setInt(1,generarID());
             ps.setString(2, actorName);
-            ps.setString(3, STR."\{gender.charAt(0)}");
+            ps.setString(3, ""+gender.charAt(0));
 
             ps.executeUpdate();
 

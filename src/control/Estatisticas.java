@@ -175,7 +175,7 @@ public class Estatisticas {
             top = Integer.parseInt(sTop);
             ano = Integer.parseInt(sAno);
         } catch (NumberFormatException nfe) {
-            JOptionPane.showMessageDialog(raiz, "Top e Ano devem ser numéricos.");
+            JOptionPane.showMessageDialog(raiz, "Top e Ano devem ser numericos.");
             return;
         }
 
@@ -187,7 +187,7 @@ public class Estatisticas {
 
         List<Map<String, Object>> resultado = repositorio.getTopMoviesWithMoreGender(top, ano, genero);
         if (resultado == null || resultado.isEmpty()) {
-            Toast.show(raiz, "Nao existem dados para sua consulta, tente com outros", Toast.warning(), 30000);
+            Toast.show(raiz, "Nao existem dados para sua consulta, tente com outros", Toast.danger(), 3000);
             // Opcional: limpar tabela A
             refreshModel(modelA, new String[]{"Sem dados"}, new Object[][]{{"—"}}, tableA);
             return;
@@ -248,7 +248,7 @@ public class Estatisticas {
 
         List<Map<String, Object>> resultado = repositorio.findActorsByGenderAndContinent(genero, contiName);
         if (resultado == null || resultado.isEmpty()) {
-            Toast.show(raiz, "Nao existem dados para sua consulta, tente com outros", Toast.danger(), 10000);
+            Toast.show(raiz, "Nao existem dados para sua consulta, tente com outros", Toast.danger(), 3000);
             // Opcional: limpar tabela C
             refreshModel(modelC, new String[]{"Sem dados"}, new Object[][]{{"—"}}, tableC);
             return;
