@@ -1,6 +1,6 @@
 -- Deyve Silva - a22403432  
 -- Laeek Ravat - a22504368
--- Jacira Louren�o - a22502992
+-- Jacira Lourenço - a22502992
 
 IF NOT EXISTS (SELECT name FROM sys.databases WHERE name = 'deisIMDB')
 CREATE DATABASE deisIMDB;
@@ -14,19 +14,19 @@ DROP TABLE IF EXISTS movie_votes;
 DROP TABLE IF EXISTS genres_movies;
 DROP TABLE IF EXISTS MovieActor;
 DROP TABLE IF EXISTS MovieDirector;
-DROP TABLE IF EXISTS moviePlatform;
-DROP TABLE IF EXISTS movieCountry;
-DROP TABLE IF EXISTS interaction;
-DROP TABLE IF EXISTS platform;
-DROP TABLE IF EXISTS country;
-DROP TABLE IF EXISTS continent;
-DROP TABLE IF EXISTS AgeRating;
+--DROP TABLE IF EXISTS moviePlatform;
+--DROP TABLE IF EXISTS movieCountry;
+--DROP TABLE IF EXISTS interaction;
+--DROP TABLE IF EXISTS platform;
+--DROP TABLE IF EXISTS country;
+--DROP TABLE IF EXISTS continent;
+--DROP TABLE IF EXISTS AgeRating;
 
 DROP TABLE IF EXISTS movies;
 DROP TABLE IF EXISTS genres;
 DROP TABLE IF EXISTS directors;
 DROP TABLE IF EXISTS actors;
-DROP TABLE IF EXISTS continent;
+--DROP TABLE IF EXISTS continent;
 
 GO
 
@@ -92,7 +92,7 @@ IF EXISTS (SELECT * FROM sys.views WHERE name = 'vw_CountriesLessThan5Movies')
     DROP VIEW vw_CountriesLessThan5Movies;
 
 --*************************************CRIAR TABELAS
--- 1. Primeiro criar tabelas sem depend�ncias FK (ou com menos depend�ncias)
+-- 1. Primeiro criar tabelas sem dependências FK (ou com menos dependências)
 
 CREATE TABLE genres (
     genreId INT PRIMARY KEY,
@@ -184,6 +184,7 @@ CREATE TABLE country (
     FOREIGN KEY (continentId) REFERENCES continent(continentId)
 );
 
+
 CREATE TABLE MoviePlatform (
     movieId INT NOT NULL,
     platformId INT NOT NULL,
@@ -210,7 +211,6 @@ CREATE TABLE interaction (
     details NVARCHAR(500) NULL,
     FOREIGN KEY (movieId) REFERENCES Movies(movieId)
 );
-
 
 -- ============================================
 -- CONSTRAINTS E iNDICES: Note: 
@@ -241,7 +241,7 @@ GO
 --******************CARREGAR FICHEIRO E ESCERVER NA DEVIDAS TABELAS
 USE deisIMDB;
 GO
-
+/*
 -- Ajuste o diretorio
 DECLARE @basePath NVARCHAR(260) = N'D:\Projects\Coding\FilmeCiname\base_de_dados_cinena2026Lusofono\ficheiros\';
 
@@ -250,7 +250,6 @@ DECLARE @loads TABLE (
     TableName SYSNAME,
     FileName  NVARCHAR(260)
 );
-
 
 INSERT INTO @loads (TableName, FileName)
 VALUES
@@ -280,7 +279,7 @@ WHILE @@FETCH_STATUS = 0
 BEGIN
     SET @path = @basePath + @file;
 
-    -- 1� tentativa: caso os ficheiros sejam carregados em linux
+    -- 1 tentativa: caso os ficheiros sejam carregados em linux
     SET @sql = N'
 BULK INSERT ' + QUOTENAME(@tbl) + N'
 FROM ' + QUOTENAME(@path,'''') + N'
@@ -301,7 +300,7 @@ WITH (
 
 
     BEGIN CATCH
-        -- 2� tentativa: caso os ficheiros sejam carregados em windows
+        -- 2 tentativa: caso os ficheiros sejam carregados em windows
         PRINT N'Falha com 0x0a. A tentar novamente com 0x0d0a...';
         SET @sql = N'
 BULK INSERT ' + QUOTENAME(@tbl) + N'
@@ -329,7 +328,7 @@ END
 
 CLOSE c;
 DEALLOCATE c;
-
+*/
 
 
 ALTER TABLE movie_votes ADD source NVARCHAR(100) DEFAULT 'IMDb' NULL;
@@ -348,12 +347,12 @@ ALTER TABLE actors ADD created_at DATETIME DEFAULT GETDATE();
     -- 16. Inserir Interactions
 
     INSERT INTO Interaction (movieId, userId, interactionType, details) VALUES
-    (56429, 1001, 'VIEW', 'Usu�rio visualizou detalhes do filme'),
-    --(56429, 1002, 'RATE', 'Avalia��o: 4 estrelas'),
-    (95853, 1001, 'SEARCH', 'Pesquisa por filmes de anima��o'),
-    (149870, 1003, 'VIEW', 'Visualiza��o em dispositivo m�vel'),
-    (84084, 1004, 'RATE', 'Avalia��o: 5 estrelas'),
-    (12166, 1002, 'VIEW', 'Visualiza��o r�pida');
+    (56429, 1001, 'VIEW', 'Usuário visualizou detalhes do filme'),
+    --(56429, 1002, 'RATE', 'Avaliação: 4 estrelas'),
+    (95853, 1001, 'SEARCH', 'Pesquisa por filmes de animação'),
+    (149870, 1003, 'VIEW', 'Visualização em dispositivo móvel'),
+    (84084, 1004, 'RATE', 'Avaliação: 5 estrelas'),
+    (12166, 1002, 'VIEW', 'Visualizaçãoo rápida');
 
 -- Continentes
     INSERT INTO continent (continentName) VALUES
@@ -391,12 +390,12 @@ INSERT INTO country (countryName, continentId) VALUES
  -- 15. Inserir MovieCountry
   INSERT INTO MovieCountry (movieId, countryId) VALUES
     (56429, 1),  -- EUA
-    (95853, 3),  -- Jap�o
-    (90532, 4),  -- �ndia
+    (95853, 3),  -- Japão
+    (90532, 4),  -- India
     (149870, 1), -- EUA
-    (84084, 5),  -- Fran�a
+    (84084, 5),  -- França
     (12166, 7),  -- Brasil
-    (29920, 8),  -- Canad�
+    (29920, 8),  -- Canada
     (24,(SELECT countryId FROM Country WHERE countryName='India')),
     (25,(SELECT countryId FROM Country WHERE countryName='China')),
     (26,(SELECT countryId FROM Country WHERE countryName='Japan')),
@@ -416,7 +415,7 @@ INSERT INTO country (countryName, continentId) VALUES
     ('14+', 'Maiores de 14', 14),
     ('16+', 'Maiores de 16', 16),
     ('18+', 'Maiores de 18', 18),
-    ('-10', 'Adequado at� 10 anos', NULL);
+    ('-10', 'Adequado até 10 anos', NULL);
 
      -- 14. Inserir MoviePlatform 
     INSERT INTO MoviePlatform (movieId, platformId, availableSince) VALUES
@@ -430,8 +429,237 @@ INSERT INTO country (countryName, continentId) VALUES
 
     INSERT INTO genres_movies (genreId,movieId) VALUES (3817,1419),(3817,1640); --adicao de filmes da europa para genero accao
 
---********************************VIEWS
 
+UPDATE movies set ageRatingId = 6  where movieId = 84084;
+UPDATE movies set ageRatingId = 6 where movieId = 93;
+UPDATE movies set ageRatingId = 5 where movieId = 66;
+UPDATE movies set ageRatingId = 2  where movieId = 56429;
+UPDATE movies set ageRatingId = 2 where movieId = 24;
+UPDATE movies set ageRatingId = 2 where movieId = 1419;
+UPDATE movies set ageRatingId = 2 where movieId = 1640;
+UPDATE movies set movieReleaseDate = '2014-12-29' where movieId = 1419;
+UPDATE movies set movieReleaseDate = '2017-12-17' where movieId = 1640;
+
+
+    
+--CONSULTAS
+
+-- ============================================
+-- EXECUTAR CONSULTAS (Etapa 2 - Exercicios 4.1 a 4.9)
+-- ============================================
+PRINT '=== EXECUTANDO CONSULTAS ===';
+
+-- ----------------------------------------------------------------------------
+-- EXERCiCIO 4.1: Obtenha/Liste todos os videos de um certo genero.
+-- ABORDAGEM: 
+-- 1. JOIN triplo: Movie -> MovieGenre (tabela de juncao) -> Genre
+-- 2. Filtro no WHERE pelo nome do genero especifico ('Action')
+-- 3. Seleciona apenas informações essenciais do video
+-- OBS: Usamos INNER JOIN para garantir que se retorne videos com o genero especificado
+-- ----------------------------------------------------------------------------
+PRINT '4.1 - Videos do genero Action:';
+SELECT 
+    v.movieId, 
+    v.movieName, 
+    v.movieReleaseDate
+FROM Movies v
+INNER JOIN genres_movies vg ON v.movieId = vg.movieId  -- Liga videos aos seus generos
+INNER JOIN Genres g ON vg.genreId = g.genreId        -- Obtem detalhes do genero
+WHERE g.genreName = 'Action';                       -- Filtra apenas videos de Action
+GO
+
+-- ----------------------------------------------------------------------------
+-- EXERCiCIO 4.2: Obtenha/Liste a informacao de todos os directores de videos 
+--                produzidos num qualquer pais.
+-- ABORDAGEM:
+-- 1. JOIN em cadeia: Director -> MovieDirector -> MovieCountry -> Country
+-- 2. DISTINCT para evitar duplicados (um diretor pode ter multiplos filmes no mesmo pais)
+-- 3. Filtro pelo nome do pais ('United States')
+-- OBS: A estrutura permite expandir para qualquer pais mudando a condicao WHERE
+-- ----------------------------------------------------------------------------
+PRINT '4.2 - Diretores de videos produzidos nos EUA:';
+SELECT DISTINCT 
+    d.directorId, 
+    d.directorName
+FROM Directors d
+INNER JOIN MovieDirector vd ON d.directorId = vd.directorId      -- Liga diretor aos seus videos
+INNER JOIN MovieCountry vc ON vd.movieId = vc.movieId            -- Liga videos aos paises de producao
+INNER JOIN Country c ON vc.countryId = c.countryId               -- Obtem detalhes do pais
+WHERE c.countryName = 'United Kingdom';                           -- Filtra por pais especifico
+GO
+
+-- ----------------------------------------------------------------------------
+-- EXERCiCIO 4.3: Obtenha/Liste a informacao de todos os atores do sexo Masculino 
+--                que participaram em filmes de paises Asiáticos.
+-- ABORDAGEM:
+-- 1. JOIN complexa: Actor -> MovieActor -> MovieCountry -> Country -> Continent
+-- 2. Duplo filtro: gênero Masculino + continente Ásia
+-- 3. DISTINCT para atores que atuaram em multiplos filmes asiáticos
+-- OBS: A hierarquia Continent->Country permite filtragem geográfica flexivel
+-- ----------------------------------------------------------------------------
+PRINT '4.3 - Atores Masculinos em filmes Asiáticos:';
+SELECT DISTINCT 
+    a.actorId, 
+    a.actorName, 
+    a.actorGender,
+    ct.continentName
+FROM Actors a
+INNER JOIN MovieActor va ON a.actorId = va.actorId              -- Liga ator aos seus videos
+INNER JOIN MovieCountry vc ON va.movieId = vc.movieId           -- Liga videos aos paises
+INNER JOIN Country c ON vc.countryId = c.countryId              -- Obtem pais
+INNER JOIN Continent ct ON c.continentId = ct.continentId       -- Obtem continente do pais
+WHERE a.actorGender = 'M' AND ct.continentName = 'Asia';        -- Filtro duplo: gênero + continente
+GO
+
+
+
+
+-- ----------------------------------------------------------------------------
+-- EXERCiCIO 4.4: Obtenha/Liste todos os videos lançados nos meses de Maio, Junho e Julho.
+-- ABORDAGEM:
+-- 1. Consulta simples na tabela Movie (não precisa de JOINs)
+-- 2. Uso da funcao MONTH() para extrair o mês da data
+-- 3. Operador IN para filtrar multiplos meses simultaneamente
+-- 4. ORDER BY para ordenacao cronológica
+-- OBS: Funcao MONTH() retorna inteiro (5=Maio, 6=Junho, 7=Julho)
+-- ----------------------------------------------------------------------------
+PRINT '4.4 - Videos lançados em Maio, Junho e Julho:';
+SELECT 
+    movieId, 
+    movieName, 
+    movieReleaseDate,
+    MONTH(movieReleaseDate) as ReleaseMonth  -- Extrai mês para visualizacao
+FROM Movies
+WHERE MONTH(movieReleaseDate) IN (5, 6, 7)   -- Filtra pelos meses especificados
+ORDER BY movieReleaseDate;                    -- Ordena por data de lançamento
+GO
+
+-- ----------------------------------------------------------------------------
+-- EXERCiCIO 4.5: Obtenha/Liste todos os videos de accao (Action) realizados num 
+--                pais europeu e lançados em Dezembro.
+-- ABORDAGEM:
+-- 1. JOIN multipla: Movie -> MovieGenre -> Genre -> MovieCountry -> Country -> Continent
+-- 2. Filtro triplo: genero Action + continente Europa + mês Dezembro
+-- 3. MONTH()=12 para Dezembro
+-- OBS: Condições especificas combinadas com AND para precisão na filtragem
+-- ----------------------------------------------------------------------------
+PRINT '4.5 - Videos de Action europeus lançados em Dezembro:';
+SELECT 
+    v.movieId, 
+    v.movieName, 
+    v.movieReleaseDate, 
+    c.countryName, 
+    ct.continentName
+FROM Movies v
+INNER JOIN genres_movies vg ON v.movieId = vg.movieId              -- Para filtrar por genero
+INNER JOIN Genres g ON vg.genreId = g.genreId                    -- Obtem nome do genero
+INNER JOIN MovieCountry vc ON v.movieId = vc.movieId            -- Para filtrar por pais
+INNER JOIN Country c ON vc.countryId = c.countryId              -- Obtem nome do i
+INNER JOIN Continent ct ON c.continentId = ct.continentId       -- Para filtrar por continente
+WHERE g.genreId = 3817                                    -- Condicao 1: genero Action
+  AND ct.continentId = 1                                  -- Condicao 2: Continente Europa
+  AND MONTH(v.movieReleaseDate) = 12;                           -- Condicao 3: Mês Dezembro
+GO
+
+-- ----------------------------------------------------------------------------
+-- EXERCICIO 4.6: Obtenha/Liste todos os vIdeos para maiores de 18 (ex: 18+)
+-- ABORDAGEM:
+-- 1. JOIN simples: Movie -> AgeRating
+-- 2. Filtro por classificacao etaria: idade minima >= 18 OU copdigo '18+'
+-- 3. Inclui codigo e descricao para verificacao
+-- OBS: Condicao OR abrange diferentes formatos de classificacao (idade numerica ou codigo)
+-- ----------------------------------------------------------------------------
+PRINT '4.6 - Videos para maiores de 18:';
+SELECT 
+    v.movieId, 
+    v.movieName, 
+    ar.code, 
+    ar.description
+FROM Movies v
+INNER JOIN AgeRating ar ON v.ageRatingId = ar.ageRatingId       -- Liga a classificacao etaria
+WHERE ar.minAge >= 18 OR ar.code = '18+';                       -- Filtro duplo para +18
+GO
+
+-- ----------------------------------------------------------------------------
+-- EXERCiCIO 4.7: Conte quantos videos existem para menores de 10 (ex: -10) 
+--                produzidos por Continente.
+-- ABORDAGEM:
+-- 1. JOIN em cadeia: Movie ->AgeRating -> MovieCountry -> Country -> Continent
+-- 2. Filtro por classificacao para menores de 10 (codigo '-10' OU minAge < 10)
+-- 3. GROUP BY por continente para agregacao
+-- 4. COUNT(DISTINCT) para evitar contagem duplicada de videos em multiplos ies
+-- 5. ORDER BY descendente para destacar continentes com mais videos
+-- OBS: DISTINCT no COUNT e crucial pois um video pode ser produzido em vários paises
+-- ----------------------------------------------------------------------------
+PRINT '4.7 - Videos para menores de 10 por Continente:';
+SELECT 
+    ct.continentName, 
+    COUNT(DISTINCT v.movieId) as TotalMovies  -- Conta vdeos unicos por continente
+FROM Movies v
+INNER JOIN AgeRating ar ON v.ageRatingId = ar.ageRatingId       -- Classificacao etária
+INNER JOIN MovieCountry vc ON v.movieId = vc.movieId            -- ies de producao
+INNER JOIN Country c ON vc.countryId = c.countryId              -- Detalhes do pais
+INNER JOIN Continent ct ON c.continentId = ct.continentId       -- Continente do pais
+WHERE ar.code = '-10' OR ar.minAge < 10                         -- Filtro para menores de 10
+GROUP BY ct.continentName                                       -- Agrupa resultados por continente
+ORDER BY TotalMovies DESC;                                      -- Ordena do maior para menor
+GO
+
+-- ----------------------------------------------------------------------------
+-- EXERCICIO 4.8: Conte quantos videos existem para maiores de 18 (ex: 18+) 
+--                produzidos por pais da Europa.
+-- ABORDAGEM:
+-- 1. Similar ao 4.7, mas com filtros diferentes
+-- 2. Filtro duplo: classificacao 18+ E continente Europa
+-- 3. GROUP BY por i (nao por continente)
+-- 4. COUNT(DISTINCT) para videos unicos por pais
+-- OBS: Parenteses na condicao WHERE garantem logica correta com operador OR
+-- ----------------------------------------------------------------------------
+PRINT '4.8 - Videos 18+ por pais europeu:';
+SELECT 
+    c.countryName, 
+    COUNT(DISTINCT v.movieId) as TotalMovies  -- Conta videos unicos por pais
+FROM Movies v
+INNER JOIN AgeRating ar ON ar.ageRatingId = v.ageRatingId       -- Classificacao etaria
+INNER JOIN MovieCountry vc ON v.movieId = vc.movieId            -- paises de producao
+INNER JOIN Country c ON vc.countryId = c.countryId              -- Detalhes do pais
+INNER JOIN Continent ct ON c.continentId = ct.continentId       -- Continente do pais
+WHERE (ar.minAge >= 18 OR ar.code = '18+')                      -- Condicao 1: Classificacao 18+
+  --AND ct.continentName = 'Europe'                               -- Condicao 2: Apenas paises europeus
+GROUP BY c.countryName                                          -- Agrupa resultados por pais
+ORDER BY TotalMovies DESC;                                      -- Ordena do maior para menor
+GO
+
+
+
+-- ----------------------------------------------------------------------------
+-- EXERCiCIO 4.9: Qual o nome dos top 10 directores com melhor rating medio 
+--                nos seus filmes.
+-- ABORDAGEM:
+-- 1. JOIN em cadeia: Director  MovieDirector  Rating
+-- 2. Funcoees agregadas: AVG para media, COUNT para numero de filmes, SUM para votos totais
+-- 3. GROUP BY por diretor para agregar estatisticas
+-- 4. HAVING para garantir que diretor tenha pelo menos 1 filme avaliado
+-- 5. TOP 10 + ORDER BY AVG DESC para os melhores ratings
+-- 6. Inclui metricas adicionais (numero de filmes, votos totais) para contexto
+-- OBS: AVG considera todos os ratings dos filmes do diretor, ponderados por filme
+-- ----------------------------------------------------------------------------
+PRINT '4.9 - Top 10 diretores por rating medio:';
+SELECT TOP 10 
+    d.directorId, 
+    d.directorName, 
+    AVG(r.movieRating) as AvgRating,                -- Media de ratings dos filmes do diretor
+    COUNT(DISTINCT vd.movieId) as NumberOfMovies,   -- Numero de filmes distintos dirigidos
+    SUM(r.movieRatingCount) as TotalVotes           -- Soma total de votos recebidos
+FROM Directors d
+INNER JOIN MovieDirector vd ON d.directorId = vd.directorId    -- Liga diretor aos seus filmes
+INNER JOIN movie_votes r ON vd.movieId = r.movieId                  -- Liga filmes aos seus ratings
+GROUP BY d.directorId, d.directorName                         -- Agrupa por diretor
+HAVING COUNT(DISTINCT vd.movieId) >= 1                        -- Garante que diretor tem filmes
+ORDER BY AvgRating DESC;                                      -- Ordena pela melhor media
+GO
+
+--********************************VIEWS
 
 -- a) Top 5 diretores com mais filmes produzidos
 GO
@@ -486,6 +714,17 @@ GROUP BY cont.continentId, cont.continentName
 HAVING COUNT(mc.movieId) > 10;
 
 GO
+
+----**********************************VIEWS***************************
+
+-- return all columns/rows
+SELECT * FROM dbo.vw_Top5Directors;
+
+SELECT * FROM vw_Top10Actors;
+
+SELECT * FROM  vw_ContinentsMoreThan10Movies;
+
+SELECT * FROM  vw_CountriesLessThan5Movies;
 
 
 --****************************PROCEDIMENTOS
@@ -789,8 +1028,8 @@ IF NOT EXISTS (
 )
 CREATE INDEX IX_MovieActor_actor_movie ON dbo.MovieActor(actorId, movieId);
 
-
 GO
+
 CREATE OR ALTER PROCEDURE dbo.DISTANCE_BETWEEN_ACTORS
     @actor1 NVARCHAR(255),
     @actor2 NVARCHAR(255),
@@ -815,6 +1054,50 @@ BEGIN
         RETURN;
     END
 
+/* ---------- Atalhos: 1 e 2 passos ---------- */
+
+    -- Distância 1: mesmo filme
+    IF EXISTS (
+        SELECT 1
+        FROM dbo.MovieActor ma1
+        JOIN dbo.MovieActor ma2
+          ON ma2.movieId = ma1.movieId
+         AND ma2.actorId  = @targetId
+        WHERE ma1.actorId = @startId
+    )
+    BEGIN
+        SELECT 1 AS Distance,
+               CONCAT(@actor1, ' -> ', @actor2) AS Path;
+        RETURN;
+    END
+
+-- Distância 2: ator intermedio comum
+    DECLARE @bridgeId INT;
+    SELECT TOP (1) @bridgeId = s.actorId
+    FROM (
+        SELECT DISTINCT ma2.actorId
+        FROM dbo.MovieActor ma1
+        JOIN dbo.MovieActor ma2
+          ON ma2.movieId = ma1.movieId
+         AND ma2.actorId <> ma1.actorId
+        WHERE ma1.actorId = @startId
+    ) AS s
+    INNER JOIN (
+        SELECT DISTINCT ma2.actorId
+        FROM dbo.MovieActor ma1
+        JOIN dbo.MovieActor ma2
+          ON ma2.movieId = ma1.movieId
+         AND ma2.actorId <> ma1.actorId
+        WHERE ma1.actorId = @targetId)
+         AS t
+      ON t.actorId = s.actorId;
+
+    IF @bridgeId IS NOT NULL
+    BEGIN
+        SELECT 2 AS Distance,
+               CONCAT(@actor1, ' -> ', (SELECT actorName FROM dbo.Actors WHERE actorId = @bridgeId), ' -> ', @actor2) AS Path;
+        RETURN;
+END
     -- Nos visitados
     CREATE TABLE #Visited (
         actorId INT PRIMARY KEY
@@ -845,7 +1128,11 @@ BEGIN
 
         -- Proxima fronteira
         CREATE TABLE #NextFrontier (actorId INT PRIMARY KEY);
-
+  /* 
+           Descoberta determinística do pai:
+           Para cada ator f na fronteira, inserimos todos os vizinhos ainda não visitados;
+           Registramos o pai como f.actorId quando o vizinho é visto pela 1ª vez.
+        */
         INSERT INTO #NextFrontier(actorId)
         SELECT DISTINCT ma2.actorId
         FROM #Frontier f
@@ -927,6 +1214,56 @@ BEGIN
     END
 END
 GO
+
+
+---------------------------------CHAMAR OS PROCEDIMENTOS------------------------
+
+--2.1
+EXEC dbo.COUNT_MOVIES_MONTH_YEAR @month = 2, @year = 2000;
+
+--2.2
+EXEC dbo.COUNT_MOVIES_DIRECTOR @fullName = N'Albert Brooks';
+
+--2.3
+EXEC dbo.COUNT_ACTORS_IN_2_YEARS @year1 = 1999, @year2 = 2001;
+
+
+--2.4
+EXEC dbo.COUNT_MOVIES_BETWEEN_YEARS_WITH_N_ACTORS @yearStart = 2005, @yearEnd = 2015, @minActors = 3, @maxActors = 8;
+
+
+--2.5
+EXEC dbo.GET_MOVIES_ACTOR_YEAR @year = 2006, @actorFullName = N'George Lucas';
+
+--2.6
+EXEC dbo.GET_MOVIES_WITH_ACTOR_CONTAINING @namePart = N'George Lucas';
+
+--2.7
+EXEC dbo.GET_TOP_4_YEARS_WITH_MOVIES_CONTAINING @searchString = N'Film';
+
+--2.8
+EXEC dbo.GET_ACTORS_BY_DIRECTOR @topN = 5, @directorFullName = N'George Lucas';
+
+--2.9
+EXEC dbo.TOP_MONTH_MOVIE_COUNT @year = 2000;
+
+--2.10
+EXEC dbo.TOP_VOTED_ACTORS @topN = 5, @year = 2001;
+
+--2.11
+EXEC dbo.TOP_MOVIES_WITH_MORE_GENDER @topN = 10, @year = 2000, @gender = 'M';
+
+--2.12
+EXEC dbo.TOP_MOVIES_WITH_GENDER_BIAS @topN = 10, @year = 2000;
+
+--2.13
+EXEC dbo.TOP_6_DIRECTORS_WITHIN_FAMILY @yearStart = 1900, @yearEnd = 2024;
+
+
+--2.14
+EXEC dbo.DISTANCE_BETWEEN_ACTORS @actor1 = N'Leonardo Dicaprio', @actor2 = N'Michael Caine';
+
+--Insert into MovieActor (movieId,actorId) VALUES (63540,3895)
 
 
 --************************TRIGGERS*********************************
@@ -1025,296 +1362,6 @@ BEGIN
     FROM inserted ins;
 END
 GO
-
-
-UPDATE movies set ageRatingId = 6  where movieId = 84084;
-UPDATE movies set ageRatingId = 6 where movieId = 93;
-UPDATE movies set ageRatingId = 5 where movieId = 66;
-UPDATE movies set ageRatingId = 2  where movieId = 56429;
-UPDATE movies set ageRatingId = 2 where movieId = 24;
-UPDATE movies set ageRatingId = 2 where movieId = 1419;
-UPDATE movies set ageRatingId = 2 where movieId = 1640;
-UPDATE movies set movieReleaseDate = '2014-12-29' where movieId = 1419;
-UPDATE movies set movieReleaseDate = '2017-12-17' where movieId = 1640;
-
-
---****************************************CONSULTAS
-
--- ============================================
--- EXECUTAR CONSULTAS (Etapa 2 - Exercicios 4.1 a 4.9)
--- ============================================
-PRINT '=== EXECUTANDO CONSULTAS ===';
-
--- ----------------------------------------------------------------------------
--- EXERCiCIO 4.1: Obtenha/Liste todos os videos de um certo genero.
--- ABORDAGEM: 
--- 1. JOIN triplo: Movie -> MovieGenre (tabela de juncao) -> Genre
--- 2. Filtro no WHERE pelo nome do genero especifico ('Action')
--- 3. Seleciona apenas informa��es essenciais do video
--- OBS: Usamos INNER JOIN para garantir que s� retorne videos com o genero especificado
--- ----------------------------------------------------------------------------
-PRINT '4.1 - Videos do genero Action:';
-SELECT 
-    v.movieId, 
-    v.movieName, 
-    v.movieReleaseDate
-FROM Movies v
-INNER JOIN genres_movies vg ON v.movieId = vg.movieId  -- Liga videos aos seus generos
-INNER JOIN Genres g ON vg.genreId = g.genreId        -- Obtem detalhes do genero
-WHERE g.genreName = 'Action';                       -- Filtra apenas videos de Action
-GO
-
--- ----------------------------------------------------------------------------
--- EXERCiCIO 4.2: Obtenha/Liste a informacao de todos os directores de videos 
---                produzidos num qualquer pais.
--- ABORDAGEM:
--- 1. JOIN em cadeia: Director -> MovieDirector -> MovieCountry -> Country
--- 2. DISTINCT para evitar duplicados (um diretor pode ter multiplos filmes no mesmo pais)
--- 3. Filtro pelo nome do pais ('United States')
--- OBS: A estrutura permite expandir para qualquer pais mudando a condicao WHERE
--- ----------------------------------------------------------------------------
-PRINT '4.2 - Diretores de videos produzidos nos EUA:';
-SELECT DISTINCT 
-    d.directorId, 
-    d.directorName
-FROM Directors d
-INNER JOIN MovieDirector vd ON d.directorId = vd.directorId      -- Liga diretor aos seus videos
-INNER JOIN MovieCountry vc ON vd.movieId = vc.movieId            -- Liga videos aos paises de producao
-INNER JOIN Country c ON vc.countryId = c.countryId               -- Obtem detalhes do pais
-WHERE c.countryName = 'United Kingdom';                           -- Filtra por pais especifico
-GO
-
--- ----------------------------------------------------------------------------
--- EXERCiCIO 4.3: Obtenha/Liste a informacao de todos os atores do sexo Masculino 
---                que participaram em filmes de paises Asi�ticos.
--- ABORDAGEM:
--- 1. JOIN complexa: Actor -> MovieActor -> MovieCountry -> Country -> Continent
--- 2. Duplo filtro: g�nero Masculino + continente �sia
--- 3. DISTINCT para atores que atuaram em multiplos filmes asi�ticos
--- OBS: A hierarquia Continent->Country permite filtragem geogr�fica flexivel
--- ----------------------------------------------------------------------------
-PRINT '4.3 - Atores Masculinos em filmes Asi�ticos:';
-SELECT DISTINCT 
-    a.actorId, 
-    a.actorName, 
-    a.actorGender,
-    ct.continentName
-FROM Actors a
-INNER JOIN MovieActor va ON a.actorId = va.actorId              -- Liga ator aos seus videos
-INNER JOIN MovieCountry vc ON va.movieId = vc.movieId           -- Liga videos aos paises
-INNER JOIN Country c ON vc.countryId = c.countryId              -- Obtem pais
-INNER JOIN Continent ct ON c.continentId = ct.continentId       -- Obtem continente do pais
-WHERE a.actorGender = 'M' AND ct.continentName = 'Asia';        -- Filtro duplo: g�nero + continente
-GO
-
-
-
-
--- ----------------------------------------------------------------------------
--- EXERCiCIO 4.4: Obtenha/Liste todos os videos lan�ados nos meses de Maio, Junho e Julho.
--- ABORDAGEM:
--- 1. Consulta simples na tabela Movie (n�o precisa de JOINs)
--- 2. Uso da funcao MONTH() para extrair o m�s da data
--- 3. Operador IN para filtrar multiplos meses simultaneamente
--- 4. ORDER BY para ordenacao cronol�gica
--- OBS: Funcao MONTH() retorna inteiro (5=Maio, 6=Junho, 7=Julho)
--- ----------------------------------------------------------------------------
-PRINT '4.4 - Videos lan�ados em Maio, Junho e Julho:';
-SELECT 
-    movieId, 
-    movieName, 
-    movieReleaseDate,
-    MONTH(movieReleaseDate) as ReleaseMonth  -- Extrai m�s para visualizacao
-FROM Movies
-WHERE MONTH(movieReleaseDate) IN (5, 6, 7)   -- Filtra pelos meses especificados
-ORDER BY movieReleaseDate;                    -- Ordena por data de lan�amento
-GO
-
--- ----------------------------------------------------------------------------
--- EXERCiCIO 4.5: Obtenha/Liste todos os videos de accao (Action) realizados num 
---                pais europeu e lan�ados em Dezembro.
--- ABORDAGEM:
--- 1. JOIN multipla: Movie -> MovieGenre -> Genre -> MovieCountry -> Country -> Continent
--- 2. Filtro triplo: genero Action + continente Europa + m�s Dezembro
--- 3. MONTH()=12 para Dezembro
--- OBS: Condi��es especificas combinadas com AND para precis�o na filtragem
--- ----------------------------------------------------------------------------
-PRINT '4.5 - Videos de Action europeus lan�ados em Dezembro:';
-SELECT 
-    v.movieId, 
-    v.movieName, 
-    v.movieReleaseDate, 
-    c.countryName, 
-    ct.continentName
-FROM Movies v
-INNER JOIN genres_movies vg ON v.movieId = vg.movieId              -- Para filtrar por genero
-INNER JOIN Genres g ON vg.genreId = g.genreId                    -- Obtem nome do genero
-INNER JOIN MovieCountry vc ON v.movieId = vc.movieId            -- Para filtrar por pais
-INNER JOIN Country c ON vc.countryId = c.countryId              -- Obtem nome do i
-INNER JOIN Continent ct ON c.continentId = ct.continentId       -- Para filtrar por continente
-WHERE g.genreId = 3817                                    -- Condicao 1: genero Action
-  AND ct.continentId = 1                                  -- Condicao 2: Continente Europa
-  AND MONTH(v.movieReleaseDate) = 12;                           -- Condicao 3: M�s Dezembro
-GO
-
--- ----------------------------------------------------------------------------
--- EXERCICIO 4.6: Obtenha/Liste todos os vIdeos para maiores de 18 (ex: 18+)
--- ABORDAGEM:
--- 1. JOIN simples: Movie -> AgeRating
--- 2. Filtro por classificacao etaria: idade minima >= 18 OU copdigo '18+'
--- 3. Inclui codigo e descricao para verificacao
--- OBS: Condicao OR abrange diferentes formatos de classificacao (idade numerica ou codigo)
--- ----------------------------------------------------------------------------
-PRINT '4.6 - Videos para maiores de 18:';
-SELECT 
-    v.movieId, 
-    v.movieName, 
-    ar.code, 
-    ar.description
-FROM Movies v
-INNER JOIN AgeRating ar ON v.ageRatingId = ar.ageRatingId       -- Liga a classificacao etaria
-WHERE ar.minAge >= 18 OR ar.code = '18+';                       -- Filtro duplo para +18
-GO
-
--- ----------------------------------------------------------------------------
--- EXERCiCIO 4.7: Conte quantos videos existem para menores de 10 (ex: -10) 
---                produzidos por Continente.
--- ABORDAGEM:
--- 1. JOIN em cadeia: Movie ->AgeRating -> MovieCountry -> Country -> Continent
--- 2. Filtro por classificacao para menores de 10 (codigo '-10' OU minAge < 10)
--- 3. GROUP BY por continente para agregacao
--- 4. COUNT(DISTINCT) para evitar contagem duplicada de videos em multiplos ies
--- 5. ORDER BY descendente para destacar continentes com mais videos
--- OBS: DISTINCT no COUNT e crucial pois um video pode ser produzido em v�arios paises
--- ----------------------------------------------------------------------------
-PRINT '4.7 - Videos para menores de 10 por Continente:';
-SELECT 
-    ct.continentName, 
-    COUNT(DISTINCT v.movieId) as TotalMovies  -- Conta vdeos unicos por continente
-FROM Movies v
-INNER JOIN AgeRating ar ON v.ageRatingId = ar.ageRatingId       -- Classificacao et�ria
-INNER JOIN MovieCountry vc ON v.movieId = vc.movieId            -- ies de producao
-INNER JOIN Country c ON vc.countryId = c.countryId              -- Detalhes do pais
-INNER JOIN Continent ct ON c.continentId = ct.continentId       -- Continente do pais
-WHERE ar.code = '-10' OR ar.minAge < 10                         -- Filtro para menores de 10
-GROUP BY ct.continentName                                       -- Agrupa resultados por continente
-ORDER BY TotalMovies DESC;                                      -- Ordena do maior para menor
-GO
-
--- ----------------------------------------------------------------------------
--- EXERCICIO 4.8: Conte quantos videos existem para maiores de 18 (ex: 18+) 
---                produzidos por pais da Europa.
--- ABORDAGEM:
--- 1. Similar ao 4.7, mas com filtros diferentes
--- 2. Filtro duplo: classificacao 18+ E continente Europa
--- 3. GROUP BY por i (nao por continente)
--- 4. COUNT(DISTINCT) para videos unicos por pais
--- OBS: Parenteses na condicao WHERE garantem logica correta com operador OR
--- ----------------------------------------------------------------------------
-PRINT '4.8 - Videos 18+ por pais europeu:';
-SELECT 
-    c.countryName, 
-    COUNT(DISTINCT v.movieId) as TotalMovies  -- Conta videos unicos por pais
-FROM Movies v
-INNER JOIN AgeRating ar ON ar.ageRatingId = v.ageRatingId       -- Classificacao etaria
-INNER JOIN MovieCountry vc ON v.movieId = vc.movieId            -- paises de producao
-INNER JOIN Country c ON vc.countryId = c.countryId              -- Detalhes do pais
-INNER JOIN Continent ct ON c.continentId = ct.continentId       -- Continente do pais
-WHERE (ar.minAge >= 18 OR ar.code = '18+')                      -- Condicao 1: Classificacao 18+
-  --AND ct.continentName = 'Europe'                               -- Condicao 2: Apenas paises europeus
-GROUP BY c.countryName                                          -- Agrupa resultados por pais
-ORDER BY TotalMovies DESC;                                      -- Ordena do maior para menor
-GO
-
-
-
--- ----------------------------------------------------------------------------
--- EXERCiCIO 4.9: Qual o nome dos top 10 directores com melhor rating medio 
---                nos seus filmes.
--- ABORDAGEM:
--- 1. JOIN em cadeia: Director  MovieDirector  Rating
--- 2. Funcoees agregadas: AVG para media, COUNT para numero de filmes, SUM para votos totais
--- 3. GROUP BY por diretor para agregar estatisticas
--- 4. HAVING para garantir que diretor tenha pelo menos 1 filme avaliado
--- 5. TOP 10 + ORDER BY AVG DESC para os melhores ratings
--- 6. Inclui metricas adicionais (numero de filmes, votos totais) para contexto
--- OBS: AVG considera todos os ratings dos filmes do diretor, ponderados por filme
--- ----------------------------------------------------------------------------
-PRINT '4.9 - Top 10 diretores por rating medio:';
-SELECT TOP 10 
-    d.directorId, 
-    d.directorName, 
-    AVG(r.movieRating) as AvgRating,                -- Media de ratings dos filmes do diretor
-    COUNT(DISTINCT vd.movieId) as NumberOfMovies,   -- Numero de filmes distintos dirigidos
-    SUM(r.movieRatingCount) as TotalVotes           -- Soma total de votos recebidos
-FROM Directors d
-INNER JOIN MovieDirector vd ON d.directorId = vd.directorId    -- Liga diretor aos seus filmes
-INNER JOIN movie_votes r ON vd.movieId = r.movieId                  -- Liga filmes aos seus ratings
-GROUP BY d.directorId, d.directorName                         -- Agrupa por diretor
-HAVING COUNT(DISTINCT vd.movieId) >= 1                        -- Garante que diretor tem filmes
-ORDER BY AvgRating DESC;                                      -- Ordena pela melhor media
-GO
-
-
-----**********************************VIEWS***************************
-
--- return all columns/rows
-SELECT * FROM dbo.vw_Top5Directors;
-
-SELECT * FROM vw_Top10Actors;
-
-SELECT * FROM  vw_ContinentsMoreThan10Movies;
-
-SELECT * FROM  vw_CountriesLessThan5Movies;
-
-
----------------------------------CHAMAR OS PROCEDIMENTOS------------------------
-
---2.1
-EXEC dbo.COUNT_MOVIES_MONTH_YEAR @month = 2, @year = 2000;
-
---2.2
-EXEC dbo.COUNT_MOVIES_DIRECTOR @fullName = N'Albert Brooks';
-
---2.3
-EXEC dbo.COUNT_ACTORS_IN_2_YEARS @year1 = 1999, @year2 = 2001;
-
-
---2.4
-EXEC dbo.COUNT_MOVIES_BETWEEN_YEARS_WITH_N_ACTORS @yearStart = 2005, @yearEnd = 2015, @minActors = 3, @maxActors = 8;
-
-
-
---2.5
-EXEC dbo.GET_MOVIES_ACTOR_YEAR @year = 2006, @actorFullName = N'George Lucas';
-
---2.6
-EXEC dbo.GET_MOVIES_WITH_ACTOR_CONTAINING @namePart = N'George Lucas';
-
---2.7
-EXEC dbo.GET_TOP_4_YEARS_WITH_MOVIES_CONTAINING @searchString = N'Film';
-
---2.8
-EXEC dbo.GET_ACTORS_BY_DIRECTOR @topN = 5, @directorFullName = N'George Lucas';
-
---2.9
-EXEC dbo.TOP_MONTH_MOVIE_COUNT @year = 2000;
-
---2.10
-EXEC dbo.TOP_VOTED_ACTORS @topN = 5, @year = 2001;
-
---2.11
-EXEC dbo.TOP_MOVIES_WITH_MORE_GENDER @topN = 10, @year = 2000, @gender = 'M';
-
---2.12
-EXEC dbo.TOP_MOVIES_WITH_GENDER_BIAS @topN = 10, @year = 2000;
-
---2.13
-EXEC dbo.TOP_6_DIRECTORS_WITHIN_FAMILY @yearStart = 1900, @yearEnd = 2024;
-
-
---2.14
-EXEC dbo.DISTANCE_BETWEEN_ACTORS @actor1 = N'Leonardo Dicaprio', @actor2 = N'George Lucas';
 
 
 --******************************TRIGGERS
