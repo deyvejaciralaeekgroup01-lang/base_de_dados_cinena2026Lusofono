@@ -37,7 +37,8 @@ Contém todos os ficheiros utilizados para popular a base de dados.
 ---
 
 ### **b) `jar/`**
-Inclui o ficheiro `.jar` necessário para estabelecer a conexão entre Java e a base de dados.
+-Inclui o ficheiro `.jar` necessário para estabelecer a conexão entre Java e a base de dados.
+-Adicionar o jar no classpath do projecto
 
 ---
 
