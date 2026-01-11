@@ -65,7 +65,7 @@ Inclui três classes responsáveis pela comunicação com a base de dados:
 
 - **`BDConnection`**  
   Classe responsável pela conexão com a base de dados.  
-  ➤ <img width="923" height="336" alt="image" src="https://github.com/user-attachments/assets/a172a422-9382-47db-948f-cc346d4138bf" />
+  ➤ <img width="1335" height="487" alt="image" src="https://github.com/user-attachments/assets/d5d3b380-25e8-4f73-9407-2e554ed09bab" />
 
 
 - **`ConsultaRepositorio`**  
